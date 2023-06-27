@@ -1,0 +1,207 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_FILES 100
+
+// Structure to represent a file
+typedef struct {
+    int id;         // File ID
+    int size;       // File size
+    int startBlock; // Starting block number
+    int endBlock;   // Ending block number
+} File;
+
+// Function prototypes
+void displayMenu();
+void allocateSequential(File files[], int numFiles);
+void allocateIndexed(File files[], int numFiles);
+void allocateLinked(File files[], int numFiles);
+
+int main() {
+    File files[MAX_FILES];
+    int numFiles = 0;
+    int choice;
+
+    do {
+        displayMenu();
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                allocateSequential(files, numFiles);
+                break;
+            case 2:
+                allocateIndexed(files, numFiles);
+                break;
+            case 3:
+                allocateLinked(files, numFiles);
+                break;
+            case 4:
+                printf("Exiting the program. Goodbye!\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+
+        printf("\n");
+    } while (choice != 4);
+
+    return 0;
+}
+
+// Function to display the main menu
+void displayMenu() {
+    printf("File Allocation Strategies\n");
+    printf("1. Sequential Allocation\n");
+    printf("2. Indexed Allocation\n");
+    printf("3. Linked Allocation\n");
+    printf("4. Exit\n");
+}
+
+// Function to allocate files using sequential allocation
+void allocateSequential(File files[], int numFiles) {
+    int i;
+
+    printf("Sequential Allocation\n");
+
+    // Read file details from the user
+    printf("Enter the number of files to allocate: ");
+    scanf("%d", &numFiles);
+
+    for (i = 0; i < numFiles; i++) {
+        printf("Enter details for File %d:\n", i + 1);
+        printf("ID: ");
+        scanf("%d", &files[i].id);
+        printf("Size: ");
+        scanf("%d", &files[i].size);
+    }
+
+    // Allocate blocks sequentially
+    int currentBlock = 0;
+
+    for (i = 0; i < numFiles; i++) {
+        files[i].startBlock = currentBlock;
+        files[i].endBlock = currentBlock + files[i].size - 1;
+        currentBlock = files[i].endBlock + 1;
+    }
+
+    // Display allocated file details
+    printf("\nAllocated Files:\n");
+
+    for (i = 0; i < numFiles; i++) {
+        printf("File %d:\n", i + 1);
+        printf("ID: %d\n", files[i].id);
+        printf("Size: %d\n", files[i].size);
+        printf("Blocks: %d - %d\n", files[i].startBlock, files[i].endBlock);
+        printf("\n");
+    }
+}
+
+// Function to allocate files using indexed allocation
+void allocateIndexed(File files[], int numFiles) {
+    int i, j;
+    int numBlocks;
+
+    printf("Indexed Allocation\n");
+
+    // Read file details from the user
+    printf("Enter the number of files to allocate: ");
+    scanf("%d", &numFiles);
+
+    printf("Enter the number of blocks: ");
+    scanf("%d", &numBlocks);
+
+    for (i = 0; i < numFiles; i++) {
+        printf("Enter details for File %d:\n", i + 1);
+        printf("ID: ");
+        scanf("%d", &files[i].id);
+        printf("Size: ");
+        scanf("%d", &files[i].size);
+
+        // Allocate blocks for the file
+        files[i].startBlock = numBlocks;
+        files[i].endBlock = numBlocks + files[i].size - 1;
+
+        // Update the index block with block numbers
+        printf("Enter the block numbers for File %d:\n", i + 1);
+        for (j = numBlocks; j <= files[i].endBlock; j++) {
+            printf("Block %d: ", j);
+            scanf("%d", &files[j].startBlock);
+        }
+
+        numBlocks = files[i].endBlock + 1;
+    }
+
+    // Display allocated file details
+    printf("\nAllocated Files:\n");
+
+    for (i = 0; i < numFiles; i++) {
+        printf("File %d:\n", i + 1);
+        printf("ID: %d\n", files[i].id);
+        printf("Size: %d\n", files[i].size);
+        printf("Blocks: %d - %d\n", files[i].startBlock, files[i].endBlock);
+
+        printf("Block Numbers: ");
+        for (j = files[i].startBlock; j <= files[i].endBlock; j++) {
+            printf("%d ", files[j].startBlock);
+        }
+
+        printf("\n\n");
+    }
+}
+
+// Function to allocate files using linked allocation
+void allocateLinked(File files[], int numFiles) {
+    int i, j;
+    int numBlocks;
+
+    printf("Linked Allocation\n");
+
+    // Read file details from the user
+    printf("Enter the number of files to allocate: ");
+    scanf("%d", &numFiles);
+
+    printf("Enter the number of blocks: ");
+    scanf("%d", &numBlocks);
+
+    for (i = 0; i < numFiles; i++) {
+        printf("Enter details for File %d:\n", i + 1);
+        printf("ID: ");
+        scanf("%d", &files[i].id);
+        printf("Size: ");
+        scanf("%d", &files[i].size);
+
+        // Allocate blocks for the file
+        files[i].startBlock = numBlocks;
+        files[i].endBlock = numBlocks + files[i].size - 1;
+
+        // Create the linked list of blocks
+        printf("Enter the block numbers for File %d:\n", i + 1);
+        for (j = numBlocks; j <= files[i].endBlock; j++) {
+            files[j].startBlock = j + 1;
+        }
+        files[j - 1].startBlock = -1; // Mark the end of the linked list
+
+        numBlocks = files[i].endBlock + 1;
+    }
+
+    // Display allocated file details
+    printf("\nAllocated Files:\n");
+
+    for (i = 0; i < numFiles; i++) {
+        printf("File %d:\n", i + 1);
+        printf("ID: %d\n", files[i].id);
+        printf("Size: %d\n", files[i].size);
+        printf("Blocks: %d - %d\n", files[i].startBlock, files[i].endBlock);
+
+        printf("Block Numbers: ");
+        j = files[i].startBlock;
+        while (j != -1) {
+            printf("%d ", j);
+            j = files[j].startBlock;
+        }
+
+        printf("\n\n");
+    }
+}
